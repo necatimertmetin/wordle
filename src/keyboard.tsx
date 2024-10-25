@@ -6,7 +6,6 @@ interface KeyboardProps {
 
 const Keyboard: React.FC<KeyboardProps> = ({ blockedLetters }) => {
   const [shakingKey, setShakingKey] = useState<string | null>(null); // State for the shaking key
-
   const keyboardLayout = [
     ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'Ğ', 'Ü'],
     ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ş', 'İ', ','],
