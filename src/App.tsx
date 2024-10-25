@@ -16,7 +16,6 @@ const App: React.FC = () => {
   const generateNewWord = () => {
     const randomIndex = Math.floor(Math.random() * words.length);
     const word = words[randomIndex].toUpperCase();
-    console.log(word)
     setCorrectWord(word.split(''));
     setGuesses([]);
     setGuess(Array(5).fill(''));

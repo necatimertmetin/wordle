@@ -16,7 +16,6 @@ const Keyboard: React.FC<KeyboardProps> = ({ blockedLetters }) => {
   // Function to handle keyboard events
   const handleKeyDown = (event: KeyboardEvent) => {
     const key = event.key.toUpperCase(); // Get the key pressed and convert to uppercase
-    console.log(`Pressed key: ${key}`); // Debugging log
     if (blockedLetters.includes(key)) {
       setShakingKey(key);
       setTimeout(() => setShakingKey(null), 500); // Reset shaking after 500ms
