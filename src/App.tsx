@@ -2,23 +2,27 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Grid, Paper, TextField, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 import words from './kelimeler.json'; // Import the JSON file directly as an array
 import './App.css';
+import Keyboard from './keyboard';
 
 const App: React.FC = () => {
   const [guess, setGuess] = useState<string[]>(Array(5).fill(''));
   const [guesses, setGuesses] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>(Array(5).fill(null));
-  const [correctWord, setCorrectWord] = useState<string[]>([]); // Store the correct word as an array of characters
+  const [correctWord, setCorrectWord] = useState<string[]>([]);
+  const [disabledLetters, setDisabledLetters] = useState<string[]>([]); // Track disabled letters
 
   // Function to generate a new random word
   const generateNewWord = () => {
-    const randomIndex = Math.floor(Math.random() * words.length); // Select a random index
-    const word = words[randomIndex].toUpperCase(); // Convert the correct word to uppercase
-    setCorrectWord(word.split('')); // Convert the string to an array of uppercase characters
+    const randomIndex = Math.floor(Math.random() * words.length);
+    const word = words[randomIndex].toUpperCase();
+    console.log(word)
+    setCorrectWord(word.split(''));
     setGuesses([]);
     setGuess(Array(5).fill(''));
     inputRefs.current.forEach((input) => input && (input.value = ''));
     inputRefs.current[0]?.focus();
+    setDisabledLetters([]); // Reset disabled letters when generating a new word
   };
 
   // Call generateNewWord when the component mounts
@@ -29,20 +33,29 @@ const App: React.FC = () => {
   // Function to normalize Turkish characters
   const normalizeInput = (value: string) => {
     return value
-      .replace(/ı/g, 'I') // Convert dotted I to dotless I
-      .replace(/i/g, 'İ') // Convert dotless I to dotted I
-      .replace(/ğ/g, 'Ğ') // Convert g with dot to G with dot
-      .replace(/G/g, 'Ğ') // Ensure uppercase G is converted correctly
-      .replace(/ö/g, 'Ö') // Convert o with umlaut to O with umlaut
-      .replace(/ü/g, 'Ü') // Convert u with umlaut to U with umlaut
-      .replace(/ş/g, 'Ş') // Convert s with cedilla to S with cedilla
-      .replace(/ç/g, 'Ç') // Convert c with cedilla to C with cedilla
-      .toUpperCase(); // Ensure all inputs are uppercase
+      .replace(/ı/g, 'I')
+      .replace(/i/g, 'İ')
+      .replace(/ğ/g, 'Ğ')
+      .replace(/G/g, 'Ğ')
+      .replace(/ö/g, 'Ö')
+      .replace(/ü/g, 'Ü')
+      .replace(/ş/g, 'Ş')
+      .replace(/ç/g, 'Ç')
+      .toUpperCase();
   };
 
   const handleInputChange = (index: number, value: string) => {
-    const normalizedValue = normalizeInput(value); // Normalize input for Turkish characters
+    const normalizedValue = normalizeInput(value);
     const newGuess = [...guess];
+    
+    if (disabledLetters.includes(normalizedValue)) {
+      // If the input letter is disabled, clear the input and shake
+      newGuess[index] = '';
+      setGuess(newGuess);
+      shakeLetter(normalizedValue); // Shake the letter
+      return;
+    }
+
     newGuess[index] = normalizedValue; // Use the normalized value
     setGuess(newGuess);
 
@@ -58,6 +71,16 @@ const App: React.FC = () => {
     // If all inputs are filled, submit the guess
     if (newGuess.every((g) => g.length === 1)) {
       handleGuessSubmit(newGuess);
+    }
+  };
+
+  const shakeLetter = (letter: string) => {
+    const letterElement = document.getElementById(`disabled-${letter}`);
+    if (letterElement) {
+      letterElement.classList.add('shake');
+      setTimeout(() => {
+        letterElement.classList.remove('shake');
+      }, 500); // Remove the shake effect after 500ms
     }
   };
 
@@ -82,7 +105,11 @@ const App: React.FC = () => {
   };
 
   const handleGuessSubmit = (newGuess: string[]) => {
-    setGuesses([...guesses, newGuess.join('')]);
+    setGuesses([newGuess.join(''), ...guesses]);
+
+    // Check for incorrect letters and update disabledLetters
+    const incorrectLetters = newGuess.filter(letter => !correctWord.includes(letter));
+    setDisabledLetters([...new Set([...disabledLetters, ...incorrectLetters])]);
 
     // Check if the guess is correct by comparing to the correctWord array
     if (JSON.stringify(newGuess) === JSON.stringify(correctWord)) {
@@ -116,6 +143,14 @@ const App: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Wordle Oyununa Hoş Geldiniz!
       </Typography>
+
+      {/* Disabled letters display */}
+      <div style={{ marginBottom: '20px' }}>
+        <Typography variant="h6">Engellenen Harfler:</Typography>
+        <Keyboard blockedLetters={disabledLetters}/>
+
+      </div>
+
       <Grid container spacing={1} justifyContent="center">
         {guess.map((g, index) => (
           <Grid item key={index}>
@@ -124,9 +159,9 @@ const App: React.FC = () => {
               value={g}
               onChange={(e) => handleInputChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(e as React.KeyboardEvent<HTMLInputElement>, index)}
-              inputProps={{ maxLength: 1 }} // Single character input
+              inputProps={{ maxLength: 1 }}
               style={{ width: '50px', textAlign: 'center' }}
-              inputRef={(el) => (inputRefs.current[index] = el)} // Assign reference
+              inputRef={(el) => (inputRefs.current[index] = el)}
             />
           </Grid>
         ))}
@@ -151,7 +186,7 @@ const App: React.FC = () => {
                       textAlign: 'center',
                       minWidth: '30px',
                       minHeight: "50px",
-                      backgroundColor: getLetterColor(letter, letterIndex) // Background color
+                      backgroundColor: getLetterColor(letter, letterIndex)
                     }}
                   >
                     <Typography variant="h4" style={{ fontWeight: 'bold' }}>
@@ -165,20 +200,17 @@ const App: React.FC = () => {
         ))}
       </Grid>
 
-      {/* Dialog component for popup */}
       <Dialog open={open} onClose={handleDialogClose}>
-        <DialogTitle>Tebrikler!</DialogTitle>
+        <DialogTitle>Doğru Tahmin!</DialogTitle>
         <DialogContent>
-          <Typography variant="h6">Cevabı doğru bildiniz!</Typography>
+          <Typography>Yeni bir kelime ile devam edelim!</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Tamam
-          </Button>
+          <Button onClick={handleDialogClose} color="primary">Tamam</Button>
         </DialogActions>
       </Dialog>
     </div>
   );
-}
+};
 
 export default App;
