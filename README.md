@@ -1,50 +1,26 @@
-# React + TypeScript + Vite
+# Wordle Benzeri Oyun
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bu proje, popüler kelime oyunu **Wordle**'a benzer bir oyun geliştirmek için yapılmıştır. Oyuncular, rastgele seçilen bir kelimeyi tahmin etmeye çalışır. Her tahminden sonra, tahmin edilen harflerin doğru yerde olup olmadığı veya kelimede yer alıp almadığı hakkında geri bildirim alırlar.
 
-Currently, two official plugins are available:
+## Özellikler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **5 harfli kelime tahmini**: Oyuncu 5 harfli bir kelimeyi tahmin etmeye çalışır.
+- **Yanlış harfler engellenir**: Yanlış harfler klavyede engellenir ve tekrar kullanılamaz.
+- **Rastgele kelime**: Oyun her turda rastgele bir kelime seçer.
+- **Renkli geri bildirim**: Harfler doğru pozisyondaysa yeşil, yanlış pozisyondaysa sarı, kelimede yoksa beyaz renkte gösterilir.
 
-## Expanding the ESLint configuration
+## Kurulum
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Bu projeyi yerel bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
 
-- Configure the top-level `parserOptions` property like this:
+### Gereksinimler
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- [Node.js](https://nodejs.org/) (v14 veya üstü)
+- [npm](https://www.npmjs.com/) veya [yarn](https://yarnpkg.com/)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Adımlar
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. Projeyi klonlayın:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   ```bash
+   git clone https://github.com/kullaniciadi/wordle-oyunu.git
